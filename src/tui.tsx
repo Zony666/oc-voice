@@ -390,6 +390,7 @@ export default Plugin.define({
         transcriptionLanguage: existing?.transcriptionLanguage,
         chineseOutput: existing?.chineseOutput,
         microphone: existing?.microphone,
+        ffmpegPath: existing?.ffmpegPath,
       });
       try {
         await writeSettings(configured);
@@ -444,6 +445,11 @@ export default Plugin.define({
                   },
                 ]
               : []),
+            {
+              title: "ffmpeg path",
+              value: "ffmpeg",
+              description: configured.ffmpegPath ?? "ffmpeg on PATH",
+            },
             { title: "Shortcut", value: "shortcut", description: `${displayShortcut(configured.shortcut)} (edit in cli.json)` },
           ],
         });
@@ -510,6 +516,21 @@ export default Plugin.define({
             current: configured.chineseOutput,
           });
           if (output) await persist({ ...configured, chineseOutput: output });
+        } else if (choice === "ffmpeg") {
+          const value = await context.ui.dialog.prompt({
+            title: "ffmpeg path",
+            description:
+              "Executable used by transcribe_file. Leave empty to use OP_VOICE_FFMPEG_PATH or ffmpeg on PATH.",
+            placeholder: "ffmpeg",
+            value: configured.ffmpegPath ?? "",
+          });
+          if (value !== undefined) {
+            const next = { ...configured };
+            const ffmpegPath = value.trim();
+            if (ffmpegPath) next.ffmpegPath = ffmpegPath;
+            else delete next.ffmpegPath;
+            await persist(next);
+          }
         } else if (choice === "shortcut") {
           notify(`Change the binding for "op-voice.toggle" in cli.json keybinds; current: ${displayShortcut(configured.shortcut)}`);
         }
