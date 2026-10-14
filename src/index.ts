@@ -4,12 +4,12 @@ import { decodeFileAudio } from "./shared/file-audio.js";
 import { TranscriptionService } from "./shared/transcription-service.js";
 
 /**
- * Server-side half of op-voice. It only registers a tool through the documented
+ * Server-side half of oc-voice. It only registers a tool through the documented
  * plugin API; it never reads or writes OpenCode's own configuration or state.
  * Audio decoding and transcription run locally, exactly like pi-voice.
  */
 export default Plugin.define({
-  id: "op-voice.server",
+  id: "oc-voice.server",
   async setup(context) {
     const service = new TranscriptionService();
 
@@ -17,7 +17,7 @@ export default Plugin.define({
       editor.add({
         name: "transcribe_file",
         description:
-          "Transcribe speech from a local audio or video file with op-voice's configured local speech model. Requires ffmpeg on PATH, or an \"ffmpegPath\" set in op-voice.json.",
+          "Transcribe speech from a local audio or video file with oc-voice's configured local speech model. Requires ffmpeg on PATH, or an \"ffmpegPath\" set in oc-voice.json.",
         input: {
           type: "object",
           properties: {
@@ -36,7 +36,7 @@ export default Plugin.define({
           const result = await readSettings();
           if (!result.settings) {
             throw new Error(
-              "op-voice is not configured. Ask the user to run /voice in the TUI once to choose a local model.",
+              "oc-voice is not configured. Ask the user to run /voice in the TUI once to choose a local model.",
             );
           }
 

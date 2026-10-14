@@ -51,7 +51,7 @@ function defaultSpokenLanguages(): string[] {
 }
 
 export default Plugin.define({
-  id: "op-voice",
+  id: "oc-voice",
   async setup(context) {
     const initial = await readSettings();
 
@@ -189,10 +189,10 @@ export default Plugin.define({
     context.keymap.layer(() => ({
       mode: "global",
       priority: 10,
-      bindings: ["op-voice.toggle", "op-voice.cancel"],
+      bindings: ["oc-voice.toggle", "oc-voice.cancel"],
       commands: [
         {
-          id: "op-voice.toggle",
+          id: "oc-voice.toggle",
           title: "Toggle voice dictation",
           group: "Voice",
           bind: shortcut(),
@@ -201,7 +201,7 @@ export default Plugin.define({
           run: () => toggle(),
         },
         {
-          id: "op-voice.cancel",
+          id: "oc-voice.cancel",
           title: "Discard voice recording",
           group: "Voice",
           bind: "escape",
@@ -212,7 +212,7 @@ export default Plugin.define({
           run: () => cancel(),
         },
         {
-          id: "op-voice.settings",
+          id: "oc-voice.settings",
           title: "Voice settings",
           group: "Voice",
           slash: { name: "voice" },
@@ -228,10 +228,10 @@ export default Plugin.define({
     context.keymap.layer(() => ({
       mode: "global",
       priority: 20,
-      bindings: ["op-voice.hold"],
+      bindings: ["oc-voice.hold"],
       commands: [
         {
-          id: "op-voice.hold",
+          id: "oc-voice.hold",
           title: "Hold Space to dictate",
           group: "Voice",
           bind: "space",
@@ -531,7 +531,7 @@ export default Plugin.define({
             await persist(next);
           }
         } else if (choice === "shortcut") {
-          notify(`Change the binding for "op-voice.toggle" in cli.json keybinds; current: ${displayShortcut(configured.shortcut)}`);
+          notify(`Change the binding for "oc-voice.toggle" in cli.json keybinds; current: ${displayShortcut(configured.shortcut)}`);
         }
 
         async function persist(updated: TranscribeSettings): Promise<void> {

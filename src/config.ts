@@ -18,7 +18,7 @@ const SETTINGS_VERSION = 1;
 
 /**
  * OpenCode's own config directory (`~/.config/opencode`, honoring
- * XDG_CONFIG_HOME). op-voice keeps its files here as `op-voice.*` so everything
+ * XDG_CONFIG_HOME). oc-voice keeps its files here as `oc-voice.*` so everything
  * lives next to OpenCode's configuration and nowhere else.
  */
 export function configDir(): string {
@@ -28,7 +28,7 @@ export function configDir(): string {
 }
 
 export function settingsPath(): string {
-  return join(configDir(), "op-voice.json");
+  return join(configDir(), "oc-voice.json");
 }
 
 type SettingsReadResult = {

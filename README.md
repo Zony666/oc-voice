@@ -1,7 +1,7 @@
-# op-voice — local speech-to-text for OpenCode
+# oc-voice — local speech-to-text for OpenCode
 
 Local dictation for [OpenCode](https://opencode.ai) V2. Press the shortcut (or hold
-**Space**), speak, and op-voice records from your microphone, transcribes the audio
+**Space**), speak, and oc-voice records from your microphone, transcribes the audio
 locally with a speech model, and inserts the text into the prompt for review — it is
 never auto-sent.
 
@@ -25,13 +25,13 @@ Works contributors) to OpenCode's plugin API.
 Install the repository as a global plugin:
 
 ```sh
-opencode plugin add github:Zony666/op-voice
+opencode plugin add github:Zony666/oc-voice
 ```
 
 OpenCode installs the package and loads both entrypoints — the server plugin (the
 `transcribe_file` tool) and the CLI/TUI plugin (the microphone and UI). Pin a
 branch, tag, or commit with `#`, for example
-`opencode plugin add github:Zony666/op-voice#main`.
+`opencode plugin add github:Zony666/oc-voice#main`.
 
 ### From a local checkout
 
@@ -42,14 +42,14 @@ works against a remote server. Add the checkout to `cli.json`:
 
 ```json
 {
-  "plugins": ["/path/to/op-voice"]
+  "plugins": ["/path/to/oc-voice"]
 }
 ```
 
 Or try it without editing your global config:
 
 ```sh
-OPENCODE_CLI_CONFIG_CONTENT='{"plugins":["/path/to/op-voice"]}' opencode
+OPENCODE_CLI_CONFIG_CONTENT='{"plugins":["/path/to/oc-voice"]}' opencode
 ```
 
 The server plugin (the `transcribe_file` tool) is loaded from `opencode.json(c)`:
@@ -57,7 +57,7 @@ The server plugin (the `transcribe_file` tool) is loaded from `opencode.json(c)`
 ```jsonc
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugins": ["/path/to/op-voice"]
+  "plugins": ["/path/to/oc-voice"]
 }
 ```
 
@@ -66,7 +66,7 @@ Reload OpenCode after changing the source.
 ## Usage
 
 - **Toggle**: press the shortcut (default `Ctrl+Alt+Z`). Change the binding for
-  `op-voice.toggle` in `cli.json` keybinds.
+  `oc-voice.toggle` in `cli.json` keybinds.
 - **Hold Space**: enable it in `/voice` → **Voice input mode** → **Hold Space**,
   then hold Space in the prompt. Releasing transcribes.
 - **Escape**: discard the current recording while it is active.
@@ -76,21 +76,21 @@ Reload OpenCode after changing the source.
 
 While recording, a spinner and elapsed time appear in the prompt footer. The
 transcript is inserted at the prompt cursor for review; if the composer cannot be
-reached, op-voice falls back to a prefilled dialog and sends on Enter.
+reached, oc-voice falls back to a prefilled dialog and sends on Enter.
 
 ## Configuration
 
-op-voice stores its settings in OpenCode's config directory
+oc-voice stores its settings in OpenCode's config directory
 (`~/.config/opencode`, honoring `XDG_CONFIG_HOME`):
 
-- `op-voice.json` — settings
+- `oc-voice.json` — settings
 
 Most settings are written by `/voice`; the file is safe to edit by hand. It also
 accepts:
 
 | Field | Meaning |
 | --- | --- |
-| `ffmpegPath` | Path to the `ffmpeg` executable for `transcribe_file`. Defaults to `OP_VOICE_FFMPEG_PATH`, then `ffmpeg` on `PATH`. |
+| `ffmpegPath` | Path to the `ffmpeg` executable for `transcribe_file`. Defaults to `OC_VOICE_FFMPEG_PATH`, then `ffmpeg` on `PATH`. |
 
 Models are stored in the standard Hugging Face cache (`HF_HUB_CACHE` / `HF_HOME`
 respected).

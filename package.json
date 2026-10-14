@@ -1,5 +1,5 @@
 {
-  "name": "op-voice",
+  "name": "oc-voice",
   "version": "0.1.0",
   "description": "Local speech-to-text for OpenCode",
   "type": "module",

@@ -19,8 +19,8 @@ function installHint(): string {
 
 function missingFfmpegError(executable: string, configured: boolean): Error {
   const locationHelp = configured
-    ? `The configured ffmpeg path (${executable}) could not be found. Correct "ffmpegPath" in op-voice.json, or remove it to use PATH.`
-    : `The ffmpeg executable was not found on PATH. Set "ffmpegPath" in op-voice.json if it is installed elsewhere.`;
+    ? `The configured ffmpeg path (${executable}) could not be found. Correct "ffmpegPath" in oc-voice.json, or remove it to use PATH.`
+    : `The ffmpeg executable was not found on PATH. Set "ffmpegPath" in oc-voice.json if it is installed elsewhere.`;
   return new Error(
     [
       "File transcription requires FFmpeg.",
@@ -45,8 +45,8 @@ export type DecodedFileAudio = {
 export type DecodeOptions = {
   signal?: AbortSignal;
   /**
-   * ffmpeg executable from op-voice.json. When unset, the
-   * OP_VOICE_FFMPEG_PATH environment variable is used, then `ffmpeg` on PATH.
+   * ffmpeg executable from oc-voice.json. When unset, the
+   * OC_VOICE_FFMPEG_PATH environment variable is used, then `ffmpeg` on PATH.
    */
   ffmpegPath?: string;
 };
@@ -58,7 +58,7 @@ export async function decodeFileAudio(
 ): Promise<DecodedFileAudio> {
   const { signal, ffmpegPath } = options;
   signal?.throwIfAborted();
-  const configured = ffmpegPath?.trim() || process.env.OP_VOICE_FFMPEG_PATH?.trim();
+  const configured = ffmpegPath?.trim() || process.env.OC_VOICE_FFMPEG_PATH?.trim();
   const executable = configured || "ffmpeg";
   const child = spawn(
     executable,
