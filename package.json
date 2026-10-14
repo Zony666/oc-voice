@@ -1,0 +1,39 @@
+{
+  "name": "op-voice",
+  "version": "0.1.0",
+  "description": "Local speech-to-text for OpenCode",
+  "type": "module",
+  "license": "MIT",
+  "exports": {
+    ".": "./src/index.ts",
+    "./tui": "./src/tui.tsx"
+  },
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@huggingface/hub": "2.15.0",
+    "@picovoice/pvrecorder-node": "1.2.9",
+    "opencc-js": "^1.4.1",
+    "transcribe-cpp": "0.2.4"
+  },
+  "peerDependencies": {
+    "@opencode/plugin": ">=2.0.28",
+    "@opentui/core": ">=0.5.17",
+    "@opentui/solid": ">=0.5.17",
+    "solid-js": ">=1.9.0"
+  },
+  "devDependencies": {
+    "@opencode/plugin": "2.0.28",
+    "@opentui/core": "0.5.17",
+    "@opentui/solid": "0.5.17",
+    "@types/node": "22.20.1",
+    "solid-js": "1.9.12",
+    "typescript": "5.9.3"
+  }
+}
