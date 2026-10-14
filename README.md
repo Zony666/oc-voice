@@ -20,22 +20,23 @@ own configuration, database, or source.
 - A terminal that reports key repeat/release (Kitty keyboard protocol) for
   precise Hold Space; otherwise the repeat-cadence heuristic is used.
 
-## Load it
+## Install
 
-The **CLI/TUI plugin** owns the microphone and the UI and is loaded by the
-terminal, so it also works against a remote server. Add it to `cli.json`:
+Clone the repository and point OpenCode at the checkout directory.
+
+The **CLI/TUI plugin** owns the microphone and the UI and runs locally, so it
+also works against a remote server. Add the checkout to `cli.json`:
 
 ```json
 {
-  "plugins": ["C:/Data/Code/op-voice"]
+  "plugins": ["/path/to/op-voice"]
 }
 ```
 
 Or try it without editing your global config:
 
-```powershell
-$env:OPENCODE_CLI_CONFIG_CONTENT='{"plugins":["C:/Data/Code/op-voice"]}'
-opencode
+```sh
+OPENCODE_CLI_CONFIG_CONTENT='{"plugins":["/path/to/op-voice"]}' opencode
 ```
 
 The **server plugin** (`transcribe_file` tool) is loaded from `opencode.json(c)`:
@@ -43,12 +44,16 @@ The **server plugin** (`transcribe_file` tool) is loaded from `opencode.json(c)`
 ```jsonc
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugins": ["C:/Data/Code/op-voice"]
+  "plugins": ["/path/to/op-voice"]
 }
 ```
 
 Both entrypoints ship from one package (`exports: { ".": "./src/index.ts",
 "./tui": "./src/tui.tsx" }`).
+
+For development, this repository already contains `.opencode/plugins/op-voice/`,
+which re-exports both entrypoints; running OpenCode from the checkout loads the
+plugin automatically.
 
 ## Usage
 
@@ -56,8 +61,8 @@ Both entrypoints ship from one package (`exports: { ".": "./src/index.ts",
   `op-voice.toggle` in `cli.json` keybinds.
 - **Hold Space**: enable it in `/voice` → **Voice input mode** → **Hold Space**,
   then hold Space in the prompt. Releasing transcribes.
-- **`/voice`**: settings — model (with download), input mode, microphone, model
-  retention, Chinese output.
+- **`/voice`**: settings — model (with download), transcription language,
+  input mode, microphone, model retention, Chinese output.
 - **Escape**: discard the current recording while it is active.
 
 The transcript is inserted at the prompt cursor for review. If the composer
@@ -90,11 +95,11 @@ Configuration is owned by op-voice, not OpenCode:
 Verified:
 
 - Type-checks against `@opencode/plugin` 2.0.28 and `@opentui/core` 0.5.17.
-- Loads and runs inside a real OpenCode V2 CLI (Bun 1.4.2, Windows): the plugin
-  is discovered from `.opencode/plugins/op-voice`, the server entry registers its
-  tool, and the TUI `setup()` completes without errors.
+- Loads and runs inside a real OpenCode V2 CLI: the plugin is discovered from
+  `.opencode/plugins/op-voice`, the server entry registers its tool, and the TUI
+  `setup()` completes without errors.
 - Native stack imports under OpenCode's runtime: `@picovoice/pvrecorder-node`
-  enumerates devices and `transcribe-cpp` reports Vulkan/CPU backends.
+  enumerates devices and `transcribe-cpp` reports its GPU/CPU backends.
 
 Still needs a real interactive OpenCode session to confirm:
 
@@ -102,7 +107,7 @@ Still needs a real interactive OpenCode session to confirm:
   through, and consuming stops it;
 - Hold Space timing and the candidate-space deletion in the composer;
 - composer insertion via `renderer.currentFocusedEditor` (falls back to a dialog);
-- the `session.composer.top` meter slot rendering.
+- the `prompt.footer.status` recording meter rendering.
 
 ## Known limitations
 
