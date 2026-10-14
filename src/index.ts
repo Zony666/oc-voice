@@ -1,8 +1,7 @@
 import { Plugin } from "@opencode/plugin";
-import { readSettings } from "./config.js";
+import { logPath, readSettings } from "./config.js";
 import { decodeFileAudio } from "./shared/file-audio.js";
-import { log, initLog } from "./shared/log.js";
-import { logPath } from "./config.js";
+import { initLog, log } from "./shared/log.js";
 import { TranscriptionService } from "./shared/transcription-service.js";
 
 /**
@@ -13,14 +12,15 @@ import { TranscriptionService } from "./shared/transcription-service.js";
 export default Plugin.define({
   id: "op-voice.server",
   async setup(context) {
-    initLog({ path: logPath(), level: process.env.OP_VOICE_DEBUG === "1" ? "debug" : "info" });
+    const initial = await readSettings();
+    initLog({ path: logPath(), level: initial.settings?.logLevel ?? "info" });
     const service = new TranscriptionService();
 
     await context.tool.transform((editor) => {
       editor.add({
         name: "transcribe_file",
         description:
-          "Transcribe speech from a local audio or video file with op-voice's configured local speech model. Requires ffmpeg on PATH (or OP_VOICE_FFMPEG_PATH).",
+          "Transcribe speech from a local audio or video file with op-voice's configured local speech model. Requires ffmpeg on PATH, or an \"ffmpegPath\" set in op-voice.json.",
         input: {
           type: "object",
           properties: {
@@ -44,7 +44,10 @@ export default Plugin.define({
           }
           if (result.warning) log.warn(result.warning);
 
-          const audio = await decodeFileAudio(mediaPath, toolContext.signal);
+          const audio = await decodeFileAudio(mediaPath, {
+            signal: toolContext.signal,
+            ffmpegPath: result.settings.ffmpegPath,
+          });
           const text = await service.transcribeFile(result.settings, audio.pcm, toolContext.signal);
           const body = text || `No speech detected in ${audio.seconds.toFixed(1)}s of audio`;
           return { content: [{ type: "text" as const, text: body }] };

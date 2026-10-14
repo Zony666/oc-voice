@@ -52,7 +52,8 @@ function defaultSpokenLanguages(): string[] {
 export default Plugin.define({
   id: "op-voice",
   async setup(context) {
-    initLog({ path: logPath(), level: process.env.OP_VOICE_DEBUG === "1" ? "debug" : "info" });
+    const initial = await readSettings();
+    initLog({ path: logPath(), level: initial.settings?.logLevel ?? "info" });
     log.info(`op-voice loaded in OpenCode ${context.app.version}`);
 
     const [phase, setPhase] = createSignal<string>("idle");
@@ -313,8 +314,7 @@ export default Plugin.define({
       engine.setKeepModelLoaded(configured.keepModelLoaded);
     }
 
-    async function loadSettings(): Promise<TranscribeSettings | undefined> {
-      const result = await readSettings();
+    function applySettings(result: Awaited<ReturnType<typeof readSettings>>): TranscribeSettings | undefined {
       if (result.warning) notify(result.warning, "warning");
       if (result.settings) refreshFromSettings(result.settings);
       return result.settings;
@@ -554,7 +554,7 @@ export default Plugin.define({
       }
     }
 
-    await loadSettings();
+    applySettings(initial);
     log.info(`op-voice ready (input mode: ${inputMode()}, model: ${settings?.model.id ?? "none"})`);
     const bindingsProbe = setTimeout(() => {
       log.info(

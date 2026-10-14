@@ -30,6 +30,8 @@ export type TranscriptionLanguage = string;
 
 export type InputMode = "toggle" | "hold-space";
 
+export type LogLevel = "error" | "warn" | "info" | "debug";
+
 export type TranscribeSettings = {
   version: 1;
   backend: { type: "transcribe-cpp" };
@@ -45,6 +47,10 @@ export type TranscribeSettings = {
     id: string;
     path: string;
   };
+  /** Optional path to the ffmpeg executable used by transcribe_file. */
+  ffmpegPath?: string;
+  /** Optional log level for op-voice's own log file. */
+  logLevel?: LogLevel;
 };
 
 function defaultTranscriptionLanguage(
@@ -83,6 +89,8 @@ type ModelSettingsOptions = {
   transcriptionLanguage?: TranscriptionLanguage;
   chineseOutput?: ChineseOutput;
   microphone?: MicrophoneSetting;
+  ffmpegPath?: string;
+  logLevel?: LogLevel;
 };
 
 export function settingsForModel(
@@ -110,5 +118,7 @@ export function settingsForModel(
     chineseOutput: options.chineseOutput ?? defaultChineseOutput(),
     microphone: { ...(options.microphone ?? DEFAULT_MICROPHONE) },
     model: { source: "catalog", id: modelId, path: modelPath },
+    ...(options.ffmpegPath ? { ffmpegPath: options.ffmpegPath } : {}),
+    ...(options.logLevel ? { logLevel: options.logLevel } : {}),
   };
 }

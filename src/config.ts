@@ -17,23 +17,18 @@ import {
 const SETTINGS_VERSION = 1;
 
 /**
- * Configuration is owned by op-voice and lives outside OpenCode, so nothing in
- * OpenCode's own config or database is touched. Set OP_VOICE_CONFIG_DIR to move
- * it (handy for tests and for a project-local setup).
+ * OpenCode's own config directory (`~/.config/opencode`, honoring
+ * XDG_CONFIG_HOME). op-voice keeps its files here as `op-voice.*` so everything
+ * lives next to OpenCode's configuration and nowhere else.
  */
 export function configDir(): string {
-  const override = process.env.OP_VOICE_CONFIG_DIR?.trim();
-  if (override) return override;
-  if (process.platform === "win32") {
-    const appData = process.env.APPDATA?.trim();
-    if (appData) return join(appData, "op-voice");
-  }
   const xdg = process.env.XDG_CONFIG_HOME?.trim();
-  return join(xdg && xdg.length > 0 ? xdg : join(homedir(), ".config"), "op-voice");
+  const base = xdg && xdg.length > 0 ? xdg : join(homedir(), ".config");
+  return join(base, "opencode");
 }
 
 export function settingsPath(): string {
-  return join(configDir(), "settings.json");
+  return join(configDir(), "op-voice.json");
 }
 
 export function logPath(): string {
@@ -96,6 +91,18 @@ export function validateSettings(value: unknown): TranscribeSettings | undefined
   const microphone = validateMicrophone(value.microphone);
   if (!preferredLanguages || !microphone) return undefined;
 
+  const ffmpegPath =
+    typeof value.ffmpegPath === "string" && value.ffmpegPath.trim()
+      ? value.ffmpegPath.trim()
+      : undefined;
+  const logLevel =
+    value.logLevel === "error" ||
+    value.logLevel === "warn" ||
+    value.logLevel === "info" ||
+    value.logLevel === "debug"
+      ? value.logLevel
+      : undefined;
+
   return {
     version: SETTINGS_VERSION,
     backend: { type: "transcribe-cpp" },
@@ -111,6 +118,8 @@ export function validateSettings(value: unknown): TranscribeSettings | undefined
     chineseOutput: validateChineseOutput(value.chineseOutput),
     microphone,
     model: { source: "catalog", id: value.model.id, path: value.model.path },
+    ...(ffmpegPath ? { ffmpegPath } : {}),
+    ...(logLevel ? { logLevel } : {}),
   };
 }
 

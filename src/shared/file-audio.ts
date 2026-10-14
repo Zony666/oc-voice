@@ -6,19 +6,6 @@ const BYTES_PER_SAMPLE = Float32Array.BYTES_PER_ELEMENT;
 const MAX_DECODED_BYTES = 128 * 1024 * 1024;
 const MAX_STDERR_CHARS = 8 * 1024;
 
-type FfmpegConfiguration = {
-  executable: string;
-  variable?: "PI_VOICE_FFMPEG_PATH" | "PI_TRANSCRIBE_FFMPEG_PATH";
-};
-
-function ffmpegConfiguration(): FfmpegConfiguration {
-  const current = process.env.PI_VOICE_FFMPEG_PATH?.trim();
-  if (current) return { executable: current, variable: "PI_VOICE_FFMPEG_PATH" };
-  const legacy = process.env.PI_TRANSCRIBE_FFMPEG_PATH?.trim();
-  if (legacy) return { executable: legacy, variable: "PI_TRANSCRIBE_FFMPEG_PATH" };
-  return { executable: "ffmpeg" };
-}
-
 function installHint(): string {
   switch (process.platform) {
     case "darwin":
@@ -30,10 +17,10 @@ function installHint(): string {
   }
 }
 
-function missingFfmpegError(configuration: FfmpegConfiguration): Error {
-  const locationHelp = configuration.variable
-    ? `The configured ${configuration.variable} (${configuration.executable}) could not be found. Correct it or unset it to use PATH.`
-    : "The ffmpeg executable was not found on PATH.";
+function missingFfmpegError(executable: string, configured: boolean): Error {
+  const locationHelp = configured
+    ? `The configured ffmpeg path (${executable}) could not be found. Correct "ffmpegPath" in op-voice.json, or remove it to use PATH.`
+    : `The ffmpeg executable was not found on PATH. Set "ffmpegPath" in op-voice.json if it is installed elsewhere.`;
   return new Error(
     [
       "File transcription requires FFmpeg.",
@@ -55,14 +42,21 @@ export type DecodedFileAudio = {
   seconds: number;
 };
 
+export type DecodeOptions = {
+  signal?: AbortSignal;
+  /** ffmpeg executable path from op-voice.json; defaults to `ffmpeg` on PATH. */
+  ffmpegPath?: string;
+};
+
 /** Decode the first audio stream in a local media file to transcribe.cpp PCM. */
 export async function decodeFileAudio(
   path: string,
-  signal?: AbortSignal,
+  options: DecodeOptions = {},
 ): Promise<DecodedFileAudio> {
+  const { signal, ffmpegPath } = options;
   signal?.throwIfAborted();
-  const configuration = ffmpegConfiguration();
-  const executable = configuration.executable;
+  const configured = ffmpegPath?.trim();
+  const executable = configured || "ffmpeg";
   const child = spawn(
     executable,
     [
@@ -125,7 +119,7 @@ export async function decodeFileAudio(
     child.once("error", (error: NodeJS.ErrnoException) => {
       terminalError =
         error.code === "ENOENT"
-          ? missingFfmpegError(configuration)
+          ? missingFfmpegError(executable, Boolean(configured))
           : new Error(`Could not start FFmpeg (${executable}): ${error.message}`);
     });
 
