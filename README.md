@@ -25,13 +25,13 @@ Works contributors) to OpenCode's plugin API.
 Install the repository as a global plugin:
 
 ```sh
-opencode plugin add github:Zony666/oc-voice
+opencode plugin add github:zeyov/oc-voice
 ```
 
 OpenCode installs the package and loads both entrypoints — the server plugin (the
 `transcribe_file` tool) and the CLI/TUI plugin (the microphone and UI). Pin a
 branch, tag, or commit with `#`, for example
-`opencode plugin add github:Zony666/oc-voice#main`.
+`opencode plugin add github:zeyov/oc-voice#main`.
 
 ### From a local checkout
 
