@@ -22,7 +22,20 @@ Works contributors) to OpenCode's plugin API.
 
 ## Install
 
-Clone the repository and point OpenCode at the checkout directory.
+Install the repository as a global plugin:
+
+```sh
+opencode plugin add github:Zony666/op-voice
+```
+
+OpenCode installs the package and loads both entrypoints — the server plugin (the
+`transcribe_file` tool) and the CLI/TUI plugin (the microphone and UI). Pin a
+branch, tag, or commit with `#`, for example
+`opencode plugin add github:Zony666/op-voice#main`.
+
+### From a local checkout
+
+To run from a clone instead, point OpenCode at the checkout directory.
 
 The CLI/TUI plugin owns the microphone and the UI and runs locally, so it also
 works against a remote server. Add the checkout to `cli.json`:
@@ -48,8 +61,7 @@ The server plugin (the `transcribe_file` tool) is loaded from `opencode.json(c)`
 }
 ```
 
-For development, add the checkout to `cli.json`/`opencode.json` as above and
-reload OpenCode after changing the source.
+Reload OpenCode after changing the source.
 
 ## Usage
 
