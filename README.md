@@ -48,9 +48,8 @@ The server plugin (the `transcribe_file` tool) is loaded from `opencode.json(c)`
 }
 ```
 
-For development, this repository contains `.opencode/plugins/op-voice/`, which
-re-exports both entrypoints; running OpenCode from the checkout loads the plugin
-automatically.
+For development, add the checkout to `cli.json`/`opencode.json` as above and
+reload OpenCode after changing the source.
 
 ## Usage
 
