@@ -1,3 +1,5 @@
+// @jsxRuntime automatic
+// @jsxImportSource @opentui/solid
 import { Plugin } from "@opencode/plugin/tui";
 import type { KeyEvent, RGBA } from "@opentui/core";
 import { Show, createSignal } from "solid-js";
