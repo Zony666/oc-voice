@@ -1,7 +1,6 @@
 import { Plugin } from "@opencode/plugin";
-import { logPath, readSettings } from "./config.js";
+import { readSettings } from "./config.js";
 import { decodeFileAudio } from "./shared/file-audio.js";
-import { initLog, log } from "./shared/log.js";
 import { TranscriptionService } from "./shared/transcription-service.js";
 
 /**
@@ -12,8 +11,6 @@ import { TranscriptionService } from "./shared/transcription-service.js";
 export default Plugin.define({
   id: "op-voice.server",
   async setup(context) {
-    const initial = await readSettings();
-    initLog({ path: logPath(), level: initial.settings?.logLevel ?? "info" });
     const service = new TranscriptionService();
 
     await context.tool.transform((editor) => {
@@ -42,7 +39,6 @@ export default Plugin.define({
               "op-voice is not configured. Ask the user to run /voice in the TUI once to choose a local model.",
             );
           }
-          if (result.warning) log.warn(result.warning);
 
           const audio = await decodeFileAudio(mediaPath, {
             signal: toolContext.signal,

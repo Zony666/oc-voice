@@ -31,10 +31,6 @@ export function settingsPath(): string {
   return join(configDir(), "op-voice.json");
 }
 
-export function logPath(): string {
-  return join(configDir(), "op-voice.log");
-}
-
 type SettingsReadResult = {
   settings?: TranscribeSettings;
   warning?: string;
@@ -95,13 +91,6 @@ export function validateSettings(value: unknown): TranscribeSettings | undefined
     typeof value.ffmpegPath === "string" && value.ffmpegPath.trim()
       ? value.ffmpegPath.trim()
       : undefined;
-  const logLevel =
-    value.logLevel === "error" ||
-    value.logLevel === "warn" ||
-    value.logLevel === "info" ||
-    value.logLevel === "debug"
-      ? value.logLevel
-      : undefined;
 
   return {
     version: SETTINGS_VERSION,
@@ -119,7 +108,6 @@ export function validateSettings(value: unknown): TranscribeSettings | undefined
     microphone,
     model: { source: "catalog", id: value.model.id, path: value.model.path },
     ...(ffmpegPath ? { ffmpegPath } : {}),
-    ...(logLevel ? { logLevel } : {}),
   };
 }
 

@@ -1,7 +1,7 @@
 import { Plugin } from "@opencode/plugin/tui";
 import type { KeyEvent, RGBA } from "@opentui/core";
 import { Show, createSignal } from "solid-js";
-import { logPath, readSettings, writeSettings } from "./config.js";
+import { readSettings, writeSettings } from "./config.js";
 import { HoldCapture, SpaceHoldGesture } from "./engine/space-hold.js";
 import { VoiceEngine } from "./engine/voice.js";
 import { getAvailableMicrophones } from "./shared/audio.js";
@@ -13,7 +13,6 @@ import {
   type CatalogModel,
 } from "./shared/catalog.js";
 import { chineseOutputSummary, isChineseLanguage } from "./shared/chinese.js";
-import { initLog, log } from "./shared/log.js";
 import { downloadCatalogModel, findCachedCatalogModel } from "./shared/models.js";
 import {
   settingsForModel,
@@ -53,8 +52,6 @@ export default Plugin.define({
   id: "op-voice",
   async setup(context) {
     const initial = await readSettings();
-    initLog({ path: logPath(), level: initial.settings?.logLevel ?? "info" });
-    log.info(`op-voice loaded in OpenCode ${context.app.version}`);
 
     const [phase, setPhase] = createSignal<string>("idle");
     const [modelState, setModelState] = createSignal<"loading" | "ready" | "failed">("loading");
@@ -104,8 +101,8 @@ export default Plugin.define({
         try {
           editor.insertText(text);
           return;
-        } catch (error) {
-          log.warn(`composer insert failed: ${error instanceof Error ? error.message : String(error)}`);
+        } catch {
+          // Fall through to the dialog below.
         }
       }
       const route = context.ui.router.current();
@@ -178,11 +175,9 @@ export default Plugin.define({
         return true;
       },
       start: () => {
-        log.info("hold detected: starting recording");
         holdCapture.begin();
       },
       end: () => {
-        log.info("hold released: stopping recording");
         holdCapture.end();
       },
       now: () => performance.now(),
@@ -202,10 +197,7 @@ export default Plugin.define({
           bind: shortcut(),
           palette: true,
           enabled: () => !disposed,
-          run: () => {
-            log.debug("op-voice.toggle dispatched");
-            return toggle();
-          },
+          run: () => toggle(),
         },
         {
           id: "op-voice.cancel",
@@ -216,10 +208,7 @@ export default Plugin.define({
             const current = phase();
             return current === "starting" || current === "listening" || current === "transcribing";
           },
-          run: () => {
-            log.debug("op-voice.cancel dispatched");
-            return cancel();
-          },
+          run: () => cancel(),
         },
         {
           id: "op-voice.settings",
@@ -254,7 +243,6 @@ export default Plugin.define({
               return false;
             }
             const step = gesture.process(true);
-            log.debug(`op-voice.hold: eventType=${key?.eventType ?? "none"} repeated=${key?.repeated ?? false} step=${step}`);
             return step === "swallow" ? undefined : false;
           },
         },
@@ -271,21 +259,6 @@ export default Plugin.define({
     // Same slot OpenCode uses for its working indicator ("esc to interrupt"), so
     // the recording meter sits in the footer status area on every prompt view.
     context.ui.slot({ append: "prompt.footer.status", render: renderMeter });
-
-    // Diagnostic only: records the raw key stream for space so a failure to
-    // trigger is debuggable. It never consumes or alters input.
-    const onKeyPress = (event: KeyEvent): void => {
-      if (event.name === "space" || event.sequence === " ") {
-        log.debug(`keyInput space press: repeated=${event.repeated ?? false} source=${event.source} type=${event.eventType}`);
-      }
-    };
-    const onKeyRelease = (event: KeyEvent): void => {
-      if (event.name === "space" || event.sequence === " ") {
-        log.debug(`keyInput space release: source=${event.source}`);
-      }
-    };
-    context.renderer.keyInput.on("keypress", onKeyPress);
-    context.renderer.keyInput.on("keyrelease", onKeyRelease);
 
     function meterLine(): string {
       const current = phase();
@@ -555,20 +528,10 @@ export default Plugin.define({
     }
 
     applySettings(initial);
-    log.info(`op-voice ready (input mode: ${inputMode()}, model: ${settings?.model.id ?? "none"})`);
-    const bindingsProbe = setTimeout(() => {
-      log.info(
-        `op-voice bindings: toggle=[${context.keymap.shortcuts("op-voice.toggle").join(", ")}] ` +
-          `hold=[${context.keymap.shortcuts("op-voice.hold").join(", ")}]`,
-      );
-    }, 1500);
 
     return async () => {
       disposed = true;
       clearInterval(ticker);
-      clearTimeout(bindingsProbe);
-      context.renderer.keyInput.off("keypress", onKeyPress);
-      context.renderer.keyInput.off("keyrelease", onKeyRelease);
       gesture.dispose();
       holdCapture.dispose();
       await engine.shutdown();

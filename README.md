@@ -1,9 +1,14 @@
 # op-voice — local speech-to-text for OpenCode
 
-Local dictation for [OpenCode](https://opencode.ai) V2. Hold **Space** (or press a
-shortcut), speak, and the transcript is inserted into the prompt for review — it is
-never auto-sent. Audio capture and transcription run locally; nothing leaves your
-machine.
+Local dictation for [OpenCode](https://opencode.ai) V2. Press the shortcut (or hold
+**Space**), speak, and op-voice records from your microphone, transcribes the audio
+locally with a speech model, and inserts the text into the prompt for review — it is
+never auto-sent.
+
+Everything runs on your machine. Speech models are open GGUF models from Hugging
+Face (Qwen3-ASR, SenseVoice, Voxtral, and others); `/voice` downloads the one you
+pick into the standard Hugging Face cache. No audio or transcript leaves your
+computer.
 
 A port of [pi-voice](https://github.com/earendil-works/pi-voice) (MIT, Earendil
 Works contributors) to OpenCode's plugin API.
@@ -12,7 +17,8 @@ Works contributors) to OpenCode's plugin API.
 
 - OpenCode V2
 - Node 22+
-- `ffmpeg` for the `transcribe_file` tool (or set `ffmpegPath` in the config)
+- `ffmpeg` for the `transcribe_file` tool, when it is not on `PATH` (see
+  `ffmpegPath` below)
 
 ## Install
 
@@ -63,18 +69,17 @@ reached, op-voice falls back to a prefilled dialog and sends on Enter.
 
 ## Configuration
 
-All op-voice files live in OpenCode's config directory (`~/.config/opencode`,
-honoring `XDG_CONFIG_HOME`):
+op-voice stores its settings in OpenCode's config directory
+(`~/.config/opencode`, honoring `XDG_CONFIG_HOME`):
 
 - `op-voice.json` — settings
-- `op-voice.log` — diagnostic log
 
-Most settings are written by `/voice`. `op-voice.json` also accepts:
+Most settings are written by `/voice`; the file is safe to edit by hand. It also
+accepts:
 
 | Field | Meaning |
 | --- | --- |
-| `ffmpegPath` | Path to the `ffmpeg` executable, when it is not on `PATH` |
-| `logLevel` | `error` \| `warn` \| `info` (default) \| `debug` |
+| `ffmpegPath` | Path to the `ffmpeg` executable for `transcribe_file`. Defaults to `OP_VOICE_FFMPEG_PATH`, then `ffmpeg` on `PATH`. |
 
 Models are stored in the standard Hugging Face cache (`HF_HUB_CACHE` / `HF_HOME`
 respected).

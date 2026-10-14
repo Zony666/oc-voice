@@ -44,7 +44,10 @@ export type DecodedFileAudio = {
 
 export type DecodeOptions = {
   signal?: AbortSignal;
-  /** ffmpeg executable path from op-voice.json; defaults to `ffmpeg` on PATH. */
+  /**
+   * ffmpeg executable from op-voice.json. When unset, the
+   * OP_VOICE_FFMPEG_PATH environment variable is used, then `ffmpeg` on PATH.
+   */
   ffmpegPath?: string;
 };
 
@@ -55,7 +58,7 @@ export async function decodeFileAudio(
 ): Promise<DecodedFileAudio> {
   const { signal, ffmpegPath } = options;
   signal?.throwIfAborted();
-  const configured = ffmpegPath?.trim();
+  const configured = ffmpegPath?.trim() || process.env.OP_VOICE_FFMPEG_PATH?.trim();
   const executable = configured || "ffmpeg";
   const child = spawn(
     executable,
