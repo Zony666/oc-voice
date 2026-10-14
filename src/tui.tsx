@@ -108,8 +108,7 @@ export default Plugin.define({
       const route = context.ui.router.current();
       const sessionID = route.type === "session" ? route.sessionID : undefined;
       const edited = await context.ui.dialog.prompt({
-        title: "Voice transcript",
-        description: "Edit, then Enter to send it to the session",
+        title: "Voice transcript · Enter to send",
         value: text,
       });
       if (edited && sessionID) {
@@ -518,9 +517,7 @@ export default Plugin.define({
           if (output) await persist({ ...configured, chineseOutput: output });
         } else if (choice === "ffmpeg") {
           const value = await context.ui.dialog.prompt({
-            title: "ffmpeg path",
-            description:
-              "Executable used by transcribe_file. Leave empty to use OP_VOICE_FFMPEG_PATH or ffmpeg on PATH.",
+            title: "ffmpeg path · empty = PATH",
             placeholder: "ffmpeg",
             value: configured.ffmpegPath ?? "",
           });
